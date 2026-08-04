@@ -27,7 +27,7 @@ export const Login: React.FC = () => {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: 'demo@aiinterviewcoach.com', password: 'Demo@1234' },
+    defaultValues: { email: '', password: '' },
   });
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -158,7 +158,7 @@ export const Login: React.FC = () => {
             d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.58l3.99 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
           />
         </svg>
-        Sign in with Google (Demo)
+        Sign in with Google
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-6">
@@ -167,10 +167,6 @@ export const Login: React.FC = () => {
           Create one now
         </Link>
       </p>
-
-      <div className="mt-4 p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-300">
-        💡 <strong>Demo Mode Pre-filled:</strong> Use pre-filled details above or sign in with Google for instant access.
-      </div>
     </div>
   );
 };
