@@ -1,0 +1,43 @@
+# Root gitignore for AI Interview Coach
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+dist-ssr/
+build/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+!.env.example
+
+# Database & SQLite files
+*.db
+*.db-journal
+
+# Uploads & Logs
+uploads/
+!uploads/.gitkeep
+logs/
+*.log
+
+# Coverage & Cache
+coverage/
+.npm
+.eslintcache
+
+# OS & Editor files
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

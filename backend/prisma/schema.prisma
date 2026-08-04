@@ -1,0 +1,277 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum InterviewType {
+  HR
+  TECHNICAL
+  BEHAVIORAL
+  SYSTEM_DESIGN
+  FRONTEND
+  BACKEND
+  JAVA
+  JAVASCRIPT
+  REACT
+  NODE
+  DATABASE
+  OS
+  COMPUTER_NETWORKS
+  DBMS
+  OOPS
+  CUSTOM
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum InterviewStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum SkillSource {
+  MANUAL
+  RESUME
+  INTERVIEW
+}
+
+enum AnalyticMetric {
+  INTERVIEW_SCORE
+  GRAMMAR_SCORE
+  CONFIDENCE_SCORE
+  TECHNICAL_SCORE
+  COMMUNICATION_SCORE
+}
+
+// ─── Models ───────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String?   @map("password_hash")
+  name            String
+  avatar          String?
+  role            Role      @default(USER)
+  isVerified      Boolean   @default(false) @map("is_verified")
+  isGoogleAuth    Boolean   @default(false) @map("is_google_auth")
+  googleId        String?   @unique @map("google_id")
+  education       String?
+  experience      String?
+  targetCompany   String?   @map("target_company")
+  targetRole      String?   @map("target_role")
+  phone           String?
+  bio             String?
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  sessions        Session[]
+  resumes         Resume[]
+  interviews      Interview[]
+  skills          Skill[]
+  analytics       Analytic[]
+  verificationTokens VerificationToken[]
+  passwordResets  PasswordReset[]
+
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique @map("refresh_token")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([refreshToken, expiresAt])
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token, expiresAt])
+  @@map("verification_tokens")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token, expiresAt])
+  @@map("password_resets")
+}
+
+model Resume {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  fileName        String   @map("file_name")
+  fileUrl         String   @map("file_url")
+  fileSize        Int?     @map("file_size")
+  rawText         String?  @map("raw_text")
+  overallScore    Int?     @map("overall_score")
+  atsScore        Int?     @map("ats_score")
+  analysisJson    Json?    @map("analysis_json")
+  isActive        Boolean  @default(false) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("resumes")
+}
+
+model Skill {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  name        String
+  proficiency Int         @default(0)
+  source      SkillSource @default(MANUAL)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("skills")
+}
+
+model Interview {
+  id              String          @id @default(uuid())
+  userId          String          @map("user_id")
+  title           String
+  type            InterviewType
+  difficulty      Difficulty
+  status          InterviewStatus @default(PENDING)
+  totalQuestions  Int             @map("total_questions")
+  currentQuestion Int             @default(0) @map("current_question")
+  overallScore    Float?          @map("overall_score")
+  duration        Int?            // in seconds
+  startedAt       DateTime?       @map("started_at")
+  completedAt     DateTime?       @map("completed_at")
+  customTopic     String?         @map("custom_topic")
+  notes           String?
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions       Question[]
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@map("interviews")
+}
+
+model Question {
+  id           String    @id @default(uuid())
+  interviewId  String    @map("interview_id")
+  text         String
+  category     String?
+  orderIndex   Int       @map("order_index")
+  expectedTime Int?      @map("expected_time") // seconds
+  hints        String[]  // Native PostgreSQL array
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  interview    Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  answer       Answer?
+  feedback     Feedback?
+
+  @@index([interviewId])
+  @@map("questions")
+}
+
+model Answer {
+  id          String    @id @default(uuid())
+  questionId  String    @unique @map("question_id")
+  userId      String    @map("user_id")
+  transcript  String?
+  audioUrl    String?   @map("audio_url")
+  duration    Int?      // seconds
+  wordCount   Int?      @map("word_count")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
+
+model Feedback {
+  id                  String   @id @default(uuid())
+  questionId          String   @unique @map("question_id")
+  grammarScore        Int?     @map("grammar_score")
+  confidenceScore     Int?     @map("confidence_score")
+  communicationScore  Int?     @map("communication_score")
+  technicalScore      Int?     @map("technical_score")
+  overallScore        Int?     @map("overall_score")
+  starMethodScore     Int?     @map("star_method_score")
+  keywordsFound       String[] @map("keywords_found")
+  keywordsMissing     String[] @map("keywords_missing")
+  idealAnswer         String?  @map("ideal_answer")
+  suggestions         String[]
+  grammarIssues       String[] @map("grammar_issues")
+  strengths           String[]
+  weaknesses          String[]
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  question            Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("feedback")
+}
+
+model Analytic {
+  id          String         @id @default(uuid())
+  userId      String         @map("user_id")
+  metric      AnalyticMetric
+  value       Float
+  date        DateTime       @default(now())
+  interviewId String?        @map("interview_id")
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, metric, date])
+  @@index([userId, date])
+  @@map("analytics")
+}
