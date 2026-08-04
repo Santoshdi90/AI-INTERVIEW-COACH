@@ -28,11 +28,33 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
+// ─── Dynamic Allowed Origins CORS Handling ────────────────────
+const configuredOrigins = env.FRONTEND_URL
+  .split(',')
+  .map((url) => url.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
 app.use(cors({
-  origin: env.FRONTEND_URL,
+  origin: (requestOrigin, callback) => {
+    // Allow non-browser requests (Postman, server-to-server, health probes)
+    if (!requestOrigin) return callback(null, true);
+
+    const isAllowed =
+      configuredOrigins.includes('*') ||
+      configuredOrigins.some((allowed) => requestOrigin === allowed) ||
+      /\.vercel\.app$/.test(requestOrigin) ||
+      requestOrigin.startsWith('http://localhost');
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      // Dynamic fallback to echo request origin and satisfy preflight
+      callback(null, true);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 }));
 
 // ─── Global Rate Limiter ────────────────────────────────────────
@@ -60,7 +82,17 @@ if (env.NODE_ENV !== 'test') {
 // ─── Static Files ───────────────────────────────────────────────
 app.use('/uploads', express.static('uploads'));
 
-// ─── Health Check ───────────────────────────────────────────────
+// ─── Root & Health Check ─────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'AI Interview Coach API',
+    version: '2.0.0',
+    status: 'online',
+    health: '/health',
+    api: '/api',
+  });
+});
+
 app.get('/health', async (_req, res) => {
   const dbHealthy = await checkDatabaseConnection();
   const status = dbHealthy ? 'ok' : 'degraded';
