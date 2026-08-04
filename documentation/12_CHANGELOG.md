@@ -3,7 +3,7 @@
 ## [2.0.0] - 2026-08-04 — Final Production Release
 
 ### Added
-- **PostgreSQL Database Integration**: Switched Prisma ORM datasource from SQLite (`dev.db`) to serverless Neon PostgreSQL cluster (`Aicoach`).
+- **PostgreSQL Database Integration**: Switched Prisma ORM datasource from SQLite (`dev.db`) to serverless Neon PostgreSQL cluster.
 - **Native Enums & Types**: Added PostgreSQL native enums (`Role`, `InterviewType`, `Difficulty`, `InterviewStatus`, `SkillSource`, `AnalyticMetric`), native `JSONB` for `analysisJson`, native `String[]` array columns, and database indexes.
 - **Production AI Service**: Integrated OpenAI GPT-4 API (`ai.service.ts`) for dynamic question generation, multi-metric answer evaluation, and ATS resume analysis with structured JSON parsing.
 - **Production Email Service**: Integrated Nodemailer SMTP service (`email.service.ts`) supporting HTML email templates for welcome, verification, and password resets.

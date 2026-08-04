@@ -1,7 +1,7 @@
 # 08. Deployment Guide
 
 ## Architecture Topology
-- **Database**: Neon PostgreSQL Cluster (`ep-restless-forest-a79skh4c-pooler`).
+- **Database**: Neon PostgreSQL Cluster (Serverless Cloud Database).
 - **Backend Service**: Render Web Service (`ai-interview-coach-api-rjk8.onrender.com`).
 - **Frontend SPA**: Vercel CDN (`ai-interview-coach-silk-six.vercel.app`).
 - **Source Repository**: `https://github.com/Santoshdi90/AI-INTERVIEW-COACH.git`.
@@ -10,7 +10,7 @@
 
 ## 1. Database Setup (Neon PostgreSQL)
 
-1. **Create Database**: Create database instance `Aicoach` on Neon.
+1. **Create Database**: Create database instance on Neon.
 2. **Obtain Connection String**: Enable Pooled Connection (`sslmode=require`).
 3. **Synchronize Schema**:
    ```bash
@@ -30,7 +30,7 @@
 5. **Start Command**: `npm start` (`node dist/index.js`).
 6. **Environment Variables**:
    - `NODE_ENV`: `production`
-   - `DATABASE_URL`: `postgresql://neondb_owner:npg_8gMef2YxzRQl@ep-restless-forest-a79skh4c-pooler.ap-southeast-2.aws.neon.tech/Aicoach?sslmode=require`
+   - `DATABASE_URL`: `postgresql://<username>:<password>@<neon_host>/<database_name>?sslmode=require`
    - `JWT_ACCESS_SECRET`: `<32_char_random_secret>`
    - `JWT_REFRESH_SECRET`: `<32_char_random_secret>`
    - `FRONTEND_URL`: `https://ai-interview-coach-silk-six.vercel.app`
