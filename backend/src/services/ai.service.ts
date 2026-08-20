@@ -30,16 +30,35 @@ async function generateQuestionsProduction(
   type: string,
   difficulty: string,
   count: number,
-  customTopic?: string
+  customTopic?: string,
+  context?: {
+    targetRole?: string;
+    targetCompany?: string;
+    skills?: string[];
+    experience?: string;
+  }
 ): Promise<QuestionGenerationResult> {
   const topicContext = type === 'CUSTOM' && customTopic
     ? `The topic is: "${customTopic}".`
     : `The interview category is: ${type.replace(/_/g, ' ')}.`;
 
+  let profileContext = '';
+  if (context) {
+    profileContext = `Candidate Context for personalization:
+- Target Position: ${context.targetRole || 'Not specified'}
+- Target Company: ${context.targetCompany || 'Not specified'}
+- Candidate Experience Level: ${context.experience || 'Not specified'}
+- Candidate Existing Skills: ${context.skills?.join(', ') || 'None specified'}
+
+Please customize the generated questions to match the candidate's target role, target company, and experience level. For example, if the role is senior, design the questions to test senior-level competence.`;
+  }
+
   const prompt = `You are an expert technical interviewer. Generate exactly ${count} interview questions.
 
 ${topicContext}
 Difficulty level: ${difficulty}.
+
+${profileContext}
 
 Return a JSON object with this exact structure:
 {
@@ -201,18 +220,13 @@ export const aiService = {
     type: string,
     difficulty: string,
     count: number,
-    customTopic?: string
+    customTopic?: string,
+    context?: any
   ): Promise<QuestionGenerationResult> {
     if (env.USE_MOCK_AI) {
-      return mockAIService.generateInterviewQuestions(type as any, difficulty as any, count, customTopic);
+      return mockAIService.generateInterviewQuestions(type as any, difficulty as any, count, customTopic, context);
     }
-
-    try {
-      return await generateQuestionsProduction(type, difficulty, count, customTopic);
-    } catch (error) {
-      logger.error('[AI] OpenAI question generation failed, falling back to mock:', error);
-      return mockAIService.generateInterviewQuestions(type as any, difficulty as any, count, customTopic);
-    }
+    return await generateQuestionsProduction(type, difficulty, count, customTopic, context);
   },
 
   async analyzeAnswer(
@@ -223,25 +237,13 @@ export const aiService = {
     if (env.USE_MOCK_AI) {
       return mockAIService.analyzeAnswer(question, answer, type as any);
     }
-
-    try {
-      return await analyzeAnswerProduction(question, answer, type);
-    } catch (error) {
-      logger.error('[AI] OpenAI answer analysis failed, falling back to mock:', error);
-      return mockAIService.analyzeAnswer(question, answer, type as any);
-    }
+    return await analyzeAnswerProduction(question, answer, type);
   },
 
   async analyzeResume(resumeText: string): Promise<ResumeAnalysis> {
     if (env.USE_MOCK_AI) {
       return mockAIService.analyzeResume(resumeText);
     }
-
-    try {
-      return await analyzeResumeProduction(resumeText);
-    } catch (error) {
-      logger.error('[AI] OpenAI resume analysis failed, falling back to mock:', error);
-      return mockAIService.analyzeResume(resumeText);
-    }
+    return await analyzeResumeProduction(resumeText);
   },
 };

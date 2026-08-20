@@ -10,6 +10,9 @@ import { aiService } from './ai.service';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../config/logger';
 
+import { userRepository } from '../repositories/user.repository';
+import { resumeRepository } from '../repositories/resume.repository';
+
 export const interviewService = {
   async createInterview(userId: string, data: {
     type: InterviewType;
@@ -39,12 +42,39 @@ export const interviewService = {
       status: 'PENDING',
     });
 
+    // Fetch user profile and active resume for context injection
+    const user = await userRepository.findById(userId);
+    const activeResume = await resumeRepository.findActiveByUserId(userId);
+    
+    let resumeText = '';
+    let skills: string[] = [];
+    if (activeResume) {
+      resumeText = activeResume.rawText || '';
+      try {
+        const parsed = typeof activeResume.analysisJson === 'string' 
+          ? JSON.parse(activeResume.analysisJson) 
+          : (activeResume.analysisJson || {});
+        skills = parsed.skills || [];
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    const context = {
+      targetRole: user?.targetRole || undefined,
+      targetCompany: user?.targetCompany || undefined,
+      skills: skills.length > 0 ? skills : undefined,
+      experience: user?.experience || undefined,
+      resumeText: resumeText || undefined,
+    };
+
     // Generate questions
     const { questions } = await aiService.generateInterviewQuestions(
       data.type,
       data.difficulty,
       data.totalQuestions,
-      data.customTopic
+      data.customTopic,
+      context
     );
 
     await questionRepository.createMany(

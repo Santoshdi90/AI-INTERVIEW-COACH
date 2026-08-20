@@ -8,6 +8,7 @@ import { storageService } from './storage.service';
 import { aiService } from './ai.service';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../config/logger';
+import { validateResumeHeuristics } from '../utils/resumeValidator';
 
 const TEMP_DIR = path.join(process.cwd(), 'uploads', 'temp');
 if (!fs.existsSync(TEMP_DIR)) fs.mkdirSync(TEMP_DIR, { recursive: true });
@@ -25,6 +26,13 @@ export const resumeService = {
     } catch (err) {
       logger.warn('PDF text extraction failed, using filename as fallback');
       rawText = file.originalname;
+    }
+
+    // Validate if the document is actually a resume/CV
+    const validation = validateResumeHeuristics(rawText);
+    if (!validation.isValid) {
+      try { fs.unlinkSync(file.path); } catch { /* ignore */ }
+      throw new AppError(validation.reason || 'This document does not appear to be a resume. Please upload a valid resume/CV.', 400);
     }
 
     // Upload file to storage
@@ -100,7 +108,13 @@ export const resumeService = {
     if (!resume) throw new AppError('Resume not found', 404);
     if (resume.userId !== userId) throw new AppError('Access denied', 403);
 
-    const analysis = await aiService.analyzeResume(resume.rawText || resume.fileName);
+    const rawText = resume.rawText || resume.fileName;
+    const validation = validateResumeHeuristics(rawText);
+    if (!validation.isValid) {
+      throw new AppError(validation.reason || 'This document does not appear to be a resume. Please upload a valid resume/CV.', 400);
+    }
+
+    const analysis = await aiService.analyzeResume(rawText);
     const updated = await resumeRepository.update(id, {
       overallScore: analysis.overallScore,
       atsScore: analysis.atsScore,

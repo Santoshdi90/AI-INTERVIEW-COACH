@@ -13,6 +13,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Award,
+  Sparkles,
 } from 'lucide-react';
 import {
   Radar,
@@ -82,6 +83,19 @@ export const Dashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* AI Diagnostic Assessment Card */}
+      {data?.diagnosticFeedback && (
+        <div className="glass-card p-6 rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-900/10 to-indigo-900/10 flex items-start gap-4">
+          <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white mb-1">AI Diagnostic Assessment</h4>
+            <p className="text-xs text-gray-300 leading-relaxed">{data.diagnosticFeedback}</p>
+          </div>
+        </div>
+      )}
 
       {/* Quick Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

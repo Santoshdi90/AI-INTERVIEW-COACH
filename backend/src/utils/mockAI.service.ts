@@ -203,12 +203,29 @@ export const mockAIService = {
     type: InterviewType,
     difficulty: Difficulty,
     count: number,
-    customTopic?: string
+    customTopic?: string,
+    context?: any
   ): Promise<QuestionGenerationResult> {
     logger.info(`[MockAI] Generating ${count} ${difficulty} ${type} questions`);
     await new Promise((r) => setTimeout(r, 500));
 
-    const questionTexts = getQuestions(type, count);
+    let questionTexts = getQuestions(type, count);
+
+    // Personalize questions using context
+    if (context) {
+      const role = context.targetRole || '';
+      const company = context.targetCompany || '';
+      
+      questionTexts = questionTexts.map((text, idx) => {
+        if (idx === 0 && role) {
+          return `How would you apply your experience as a ${role} to: ${text.charAt(0).toLowerCase() + text.slice(1)}`;
+        }
+        if (idx === 1 && company) {
+          return `At a company like ${company}, how would you approach: ${text.charAt(0).toLowerCase() + text.slice(1)}`;
+        }
+        return text;
+      });
+    }
 
     const questions = questionTexts.map((text, index) => ({
       text: customTopic && type === 'CUSTOM' ? `${customTopic}: ${text}` : text,
@@ -229,38 +246,116 @@ export const mockAIService = {
     logger.info(`[MockAI] Analyzing answer for question: "${question.substring(0, 50)}..."`);
     await new Promise((r) => setTimeout(r, 800));
 
-    const wordCount = answer.split(' ').length;
-    const hasSTAR = answer.toLowerCase().includes('situation') ||
-      answer.toLowerCase().includes('task') ||
-      answer.toLowerCase().includes('action') ||
-      answer.toLowerCase().includes('result');
+    const cleanAnswer = answer.trim().toLowerCase();
+    const isEvasive = cleanAnswer.length < 15 || 
+                      cleanAnswer === "i don't know" || 
+                      cleanAnswer.includes("don't know") || 
+                      cleanAnswer.includes("do not know") || 
+                      cleanAnswer.includes("no idea") ||
+                      cleanAnswer === "pass" ||
+                      cleanAnswer === "skip";
 
-    const grammarScore = Math.min(95, 60 + wordCount * 0.3 + Math.random() * 20);
-    const confidenceScore = Math.min(95, 55 + Math.random() * 40);
-    const communicationScore = Math.min(95, 58 + (wordCount > 50 ? 20 : 5) + Math.random() * 20);
-    const technicalScore = Math.min(95, 50 + Math.random() * 45);
-    const starScore = hasSTAR ? Math.min(95, 70 + Math.random() * 25) : Math.min(60, 30 + Math.random() * 30);
-    const overall = Math.round((grammarScore + confidenceScore + communicationScore + technicalScore) / 4);
+    if (isEvasive) {
+      return {
+        grammarScore: 80,
+        confidenceScore: 10,
+        communicationScore: 10,
+        technicalScore: 0,
+        overallScore: 25,
+        starMethodScore: 0,
+        keywordsFound: [],
+        keywordsMissing: ['explanation', 'details', 'STAR methodology'],
+        idealAnswer: `An ideal response to "${question}" should demonstrate your understanding of the concept, provide relevant technical definitions, outline practical use cases, and present an example using the Situation-Task-Action-Result (STAR) structure.`,
+        suggestions: [
+          'Please do not leave the question blank or say "I don\'t know". Try to explain whatever basic concepts you are familiar with.',
+          'Review the study materials for this topic to understand core definitions.',
+          'Always structure your answers by setting the context first, then describing your actions and results.'
+        ],
+        grammarIssues: [],
+        strengths: [],
+        weaknesses: [
+          'Answer transcript was too short or indicated lack of knowledge.',
+          'Failed to provide any technical or conceptual explanations.'
+        ]
+      };
+    }
+
+    // Normal answer processing
+    const wordCount = answer.split(/\s+/).length;
+    const lowercaseAnswer = answer.toLowerCase();
+
+    // Check for STAR indicators
+    const starIndicators = {
+      situation: lowercaseAnswer.includes('situation') || lowercaseAnswer.includes('when i was') || lowercaseAnswer.includes('at my last'),
+      task: lowercaseAnswer.includes('task') || lowercaseAnswer.includes('goal') || lowercaseAnswer.includes('target'),
+      action: lowercaseAnswer.includes('action') || lowercaseAnswer.includes('i did') || lowercaseAnswer.includes('we resolved') || lowercaseAnswer.includes('implemented'),
+      result: lowercaseAnswer.includes('result') || lowercaseAnswer.includes('outcome') || lowercaseAnswer.includes('impact') || lowercaseAnswer.includes('saved') || lowercaseAnswer.includes('%')
+    };
+
+    const starMatches = Object.values(starIndicators).filter(Boolean).length;
+    const starMethodScore = Math.min(100, Math.round((starMatches / 4) * 100));
+
+    // Keyword detection
+    const candidates = ['performance', 'scaling', 'optimization', 'architecture', 'best practices', 'design', 'components', 'state', 'hooks', 'lifecycle', 'apis', 'security', 'database', 'rest', 'graphql'];
+    const keywordsFound = candidates.filter(k => lowercaseAnswer.includes(k));
+    const keywordsMissing = candidates.filter(k => !lowercaseAnswer.includes(k)).slice(0, 3);
+
+    // Dynamic scoring calculations based on length & content
+    const technicalScore = Math.min(98, Math.round(50 + (keywordsFound.length * 8) + (wordCount > 60 ? 15 : 5)));
+    const confidenceScore = Math.min(95, Math.round(60 + (wordCount > 40 ? 20 : 5) - (lowercaseAnswer.includes('maybe') || lowercaseAnswer.includes('sorry') ? 15 : 0)));
+    const communicationScore = Math.min(98, Math.round(55 + (starMethodScore * 0.3) + (wordCount > 50 ? 15 : 0)));
+    const grammarScore = Math.min(98, Math.round(75 + (wordCount > 10 ? 15 : 0) - (lowercaseAnswer.includes('um') || lowercaseAnswer.includes('like') ? 10 : 0)));
+    
+    const overallScore = Math.round((technicalScore + confidenceScore + communicationScore + grammarScore) / 4);
+
+    // Dynamic suggestions based on calculated scores
+    const suggestions: string[] = [];
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+
+    if (technicalScore > 75) {
+      strengths.push('Demonstrated solid technical depth and conceptual understanding.');
+    } else {
+      weaknesses.push('Technical explanation lacks depth or specific terminology.');
+      suggestions.push('Incorporate more precise industry terms and explain underlying mechanics (e.g. how it functions under the hood).');
+    }
+
+    if (communicationScore > 75) {
+      strengths.push('Clear expression, good structure and pacing.');
+    } else {
+      weaknesses.push('Explanation felt disjointed or brief.');
+      suggestions.push('Structure your answer chronologically: context first, followed by your action and final metrics.');
+    }
+
+    if (starMethodScore < 50) {
+      weaknesses.push('Did not follow the STAR method structure.');
+      suggestions.push('Always frame your examples using the STAR method (Situation, Task, Action, Result) to clarify your specific contribution.');
+    } else {
+      strengths.push('Well-structured narrative that effectively details context and results.');
+    }
+
+    if (lowercaseAnswer.includes('um') || lowercaseAnswer.includes('uh') || lowercaseAnswer.includes('like')) {
+      suggestions.push('Minimize verbal fillers such as "um", "uh", or "like" to sound more assertive.');
+    }
+
+    if (suggestions.length === 0) {
+      suggestions.push('Maintain your current high standard; try practicing under tighter time limits.');
+    }
 
     return {
-      grammarScore: Math.round(grammarScore),
-      confidenceScore: Math.round(confidenceScore),
-      communicationScore: Math.round(communicationScore),
-      technicalScore: Math.round(technicalScore),
-      overallScore: overall,
-      starMethodScore: Math.round(starScore),
-      keywordsFound: ['problem-solving', 'teamwork', 'communication'].slice(0, 2),
-      keywordsMissing: ['metrics', 'impact', 'leadership'].slice(0, 2),
-      idealAnswer: `An ideal answer would clearly explain the concept with a structured approach, provide a concrete real-world example, discuss trade-offs, and demonstrate deep understanding of the subject matter. Use the STAR method when describing experiences and quantify your impact where possible.`,
-      suggestions: [
-        'Use more specific examples to illustrate your points.',
-        'Quantify your achievements with numbers and metrics.',
-        'Structure your answer using the STAR method (Situation, Task, Action, Result).',
-        'Speak more confidently and avoid filler words like "um" and "uh".',
-      ],
-      grammarIssues: wordCount < 20 ? ['Answer is too brief - aim for at least 2-3 sentences.'] : [],
-      strengths: ['Clear communication', 'Good structure'],
-      weaknesses: wordCount < 30 ? ['Answer lacks detail'] : ['Could provide more specific examples'],
+      grammarScore,
+      confidenceScore,
+      communicationScore,
+      technicalScore,
+      overallScore,
+      starMethodScore,
+      keywordsFound,
+      keywordsMissing,
+      idealAnswer: `A strong answer should define the topic clearly (e.g. explaining specific trade-offs), then detail a real-world scenario outlining the Situation, the exact Task, the Actions you performed, and the quantitative Results (e.g., performance improvements or cost savings).`,
+      suggestions,
+      grammarIssues: lowercaseAnswer.includes('um') ? ['Spoken filler words ("um") detected.'] : [],
+      strengths,
+      weaknesses
     };
   },
 
@@ -268,18 +363,29 @@ export const mockAIService = {
     logger.info('[MockAI] Analyzing resume...');
     await new Promise((r) => setTimeout(r, 1200));
 
-    const hasEducation = resumeText.toLowerCase().includes('education') ||
-      resumeText.toLowerCase().includes('university') ||
-      resumeText.toLowerCase().includes('degree');
+    const lowercaseText = resumeText.toLowerCase();
 
-    const hasExperience = resumeText.toLowerCase().includes('experience') ||
-      resumeText.toLowerCase().includes('worked') ||
-      resumeText.toLowerCase().includes('employed');
+    const hasEducation = lowercaseText.includes('education') ||
+      lowercaseText.includes('university') ||
+      lowercaseText.includes('degree') ||
+      lowercaseText.includes('bachelor') ||
+      lowercaseText.includes('college');
 
+    const hasExperience = lowercaseText.includes('experience') ||
+      lowercaseText.includes('worked') ||
+      lowercaseText.includes('employment') ||
+      lowercaseText.includes('engineer') ||
+      lowercaseText.includes('developer');
+
+    // Extract skills dynamically
     const detectedSkills: string[] = [];
-    const techKeywords = ['javascript', 'typescript', 'react', 'node', 'python', 'java', 'sql', 'docker', 'aws', 'git', 'html', 'css', 'mongodb', 'postgresql', 'redis', 'kubernetes', 'graphql', 'rest'];
+    const techKeywords = [
+      'javascript', 'typescript', 'react', 'node', 'python', 'java', 'sql', 'docker', 
+      'aws', 'git', 'html', 'css', 'mongodb', 'postgresql', 'redis', 'kubernetes', 
+      'graphql', 'rest', 'vue', 'angular', 'c++', 'go', 'rust', 'next.js', 'express'
+    ];
     for (const keyword of techKeywords) {
-      if (resumeText.toLowerCase().includes(keyword)) {
+      if (lowercaseText.includes(keyword)) {
         detectedSkills.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
       }
     }
@@ -288,41 +394,81 @@ export const mockAIService = {
       detectedSkills.push('Communication', 'Problem Solving', 'Teamwork');
     }
 
-    const allSkills = ['Docker', 'Kubernetes', 'AWS', 'CI/CD', 'System Design', 'Microservices'];
-    const missingSkills = allSkills.filter(s => !detectedSkills.includes(s)).slice(0, 4);
+    // Determine target role by scanning text (fallback to general software engineer)
+    let role = 'Software Engineer';
+    if (lowercaseText.includes('frontend') || lowercaseText.includes('react') || lowercaseText.includes('ui')) {
+      role = 'Frontend Engineer';
+    } else if (lowercaseText.includes('backend') || lowercaseText.includes('node') || lowercaseText.includes('database')) {
+      role = 'Backend Engineer';
+    } else if (lowercaseText.includes('data scientist') || lowercaseText.includes('machine learning')) {
+      role = 'Data Scientist';
+    } else if (lowercaseText.includes('devops') || lowercaseText.includes('cloud')) {
+      role = 'DevOps Engineer';
+    }
 
-    const overallScore = Math.round(55 + (hasEducation ? 15 : 0) + (hasExperience ? 15 : 0) + detectedSkills.length * 2 + Math.random() * 10);
-    const atsScore = Math.round(50 + detectedSkills.length * 3 + Math.random() * 20);
+    // Define standard skill lists for role-based recommendations
+    const roleSkills: Record<string, string[]> = {
+      'Frontend Engineer': ['TypeScript', 'React', 'Next.js', 'Tailwind CSS', 'Redux', 'GraphQL', 'Webpack'],
+      'Backend Engineer': ['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'REST APIs', 'System Design', 'Microservices'],
+      'Data Scientist': ['Python', 'Pandas', 'NumPy', 'TensorFlow', 'SQL', 'Scikit-Learn', 'Machine Learning'],
+      'DevOps Engineer': ['Docker', 'Kubernetes', 'AWS', 'CI/CD Pipelines', 'Terraform', 'Linux', 'Ansible'],
+      'Software Engineer': ['Git', 'SQL', 'Data Structures', 'Algorithms', 'Docker', 'REST APIs']
+    };
+
+    const targetSkills = roleSkills[role] || roleSkills['Software Engineer'];
+    
+    // Recommendations: skills that are in the target list but NOT in detected list
+    const missingSkills = targetSkills.filter(s => !detectedSkills.some(ds => ds.toLowerCase() === s.toLowerCase())).slice(0, 4);
+
+    const overallScore = Math.min(95, Math.round(55 + (hasEducation ? 15 : 0) + (hasExperience ? 15 : 0) + detectedSkills.length * 2));
+    const atsScore = Math.min(95, Math.round(50 + detectedSkills.length * 3));
+
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+    const suggestions: string[] = [];
+
+    if (hasExperience) {
+      strengths.push('Demonstrates relevant work experience and professional exposure.');
+    } else {
+      weaknesses.push('Lacks clear professional work history section.');
+      suggestions.push('Add an "Experience" section detailing internships, freelance contracts, or academic team leadership roles.');
+    }
+
+    if (hasEducation) {
+      strengths.push('Strong educational/academic credentials present.');
+    } else {
+      weaknesses.push('Education background is not clearly visible.');
+      suggestions.push('Add a short "Education" section mentioning your degree, major, and graduation year.');
+    }
+
+    if (detectedSkills.length > 5) {
+      strengths.push('Wide technical skill coverage matches industry requirements.');
+    } else {
+      weaknesses.push('Technical skill index is low; matches very few core keywords.');
+      suggestions.push('List specific technical skills, libraries, and frameworks you know instead of general terms.');
+    }
+
+    suggestions.push('Add quantifiable, metric-driven achievements to bullet points (e.g. "optimized API response time by 30%").');
+    suggestions.push('Add links to active professional profiles like GitHub or LinkedIn.');
+    
+    if (missingSkills.length > 0) {
+      suggestions.push(`Consider acquiring and listing core skills for ${role} positions, such as: ${missingSkills.join(', ')}.`);
+    }
 
     return {
-      overallScore: Math.min(overallScore, 95),
-      atsScore: Math.min(atsScore, 95),
+      overallScore,
+      atsScore,
       skills: detectedSkills,
       missingSkills,
-      strengths: [
-        'Clear and concise writing style',
-        'Relevant technical skills mentioned',
-        hasExperience ? 'Demonstrates relevant work experience' : 'Fresh perspective and eagerness to learn',
-        hasEducation ? 'Strong educational background' : 'Self-taught demonstrates initiative',
-      ],
-      weaknesses: [
-        'Consider adding quantifiable achievements',
-        'Missing a professional summary/objective section',
-        missingSkills.length > 0 ? `Consider adding: ${missingSkills.slice(0, 2).join(', ')}` : 'Great skill coverage',
-      ],
-      suggestions: [
-        'Add specific metrics and numbers to demonstrate impact (e.g., "Increased performance by 40%").',
-        'Use strong action verbs at the beginning of each bullet point.',
-        'Include a compelling professional summary at the top.',
-        'Tailor your resume keywords to match job descriptions for better ATS scoring.',
-        'Add links to your GitHub, LinkedIn, or portfolio.',
-      ],
-      experience: hasExperience ? '2-4 years (estimated from resume content)' : 'Entry level / Fresher',
-      education: hasEducation ? 'Bachelor\'s or higher degree detected' : 'Education section not found',
-      summary: `This resume demonstrates ${detectedSkills.length > 5 ? 'strong' : 'moderate'} technical proficiency with a focus on ${detectedSkills.slice(0, 3).join(', ')}. ${hasExperience ? 'Work experience is present and relevant.' : 'The candidate appears to be entry-level.'} Overall presentation is ${overallScore > 70 ? 'professional' : 'adequate but could be improved'}.`,
-      keywordDensity: Math.round(30 + Math.random() * 40),
-      formattingScore: Math.round(60 + Math.random() * 35),
-      readabilityScore: Math.round(65 + Math.random() * 30),
+      strengths,
+      weaknesses,
+      suggestions,
+      experience: hasExperience ? 'Professional level detected' : 'Entry level / Academic',
+      education: hasEducation ? 'Academic degrees detected' : 'Not found',
+      summary: `The resume indicates technical proficiency in ${detectedSkills.slice(0, 3).join(', ')} targeting a ${role} position. Formatting and scanning suitability is graded at ${atsScore}%.`,
+      keywordDensity: Math.round(40 + detectedSkills.length * 4),
+      formattingScore: Math.round(70 + Math.random() * 20),
+      readabilityScore: Math.round(75 + Math.random() * 15),
     };
   },
 };

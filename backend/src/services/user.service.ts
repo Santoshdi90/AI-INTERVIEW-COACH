@@ -87,6 +87,39 @@ export const userService = {
     const weakSkills = [...skills].sort((a, b) => a.proficiency - b.proficiency).slice(0, 4);
     const strongSkills = [...skills].sort((a, b) => b.proficiency - a.proficiency).slice(0, 4);
 
+    // Calculate dynamic diagnostic feedback based on actual performance
+    let diagnosticFeedback = "Welcome to your AI Interview Coach! Start by uploading your resume or launching a practice mock interview to receive customized diagnostic assessments.";
+    
+    if (activeResume || totalInterviews > 0) {
+      const parts: string[] = [];
+      if (activeResume) {
+        parts.push(`Your active resume has been analyzed with an ATS readiness score of ${activeResume.atsScore || 0}%.`);
+      }
+      
+      if (totalInterviews > 0) {
+        const metrics = await analyticsRepository.getMetricAverages(userId);
+        const tech = metrics['TECHNICAL_SCORE'] || 0;
+        const comm = metrics['COMMUNICATION_SCORE'] || 0;
+        
+        if (tech > 0 || comm > 0) {
+          parts.push(`Based on your practice history, you average ${tech}% in Technical Accuracy and ${comm}% in Communication clarity.`);
+          
+          if (tech > 75 && comm < 70) {
+            parts.push("Diagnostic: You demonstrate strong technical depth, but your communication structure can be improved. Focus on using the STAR method (Situation, Task, Action, Result) to organize your responses.");
+          } else if (comm > 75 && tech < 70) {
+            parts.push("Diagnostic: Your communication style is engaging and confident, but your answers lack technical depth. Try incorporating more specific technical keywords, libraries, and frameworks into your explanations.");
+          } else if (tech < 70 && comm < 70) {
+            parts.push("Diagnostic: We recommend focusing on both core concepts and response structure. Practice with 'EASY' difficulty interviews first to build confidence.");
+          } else {
+            parts.push("Diagnostic: You show balanced technical accuracy and communication skills. Keep practicing on 'HARD' difficulty to master your delivery.");
+          }
+        }
+      } else {
+        parts.push("Launch your first practice mock interview to start evaluating your technical accuracy, communication clarity, grammar, and STAR method delivery.");
+      }
+      diagnosticFeedback = parts.join(" ");
+    }
+
     return {
       totalInterviews,
       completedInterviews: completedInterviews.total,
@@ -98,6 +131,7 @@ export const userService = {
       strongSkills,
       recentInterviews: recentInterviews.interviews,
       activeResume,
+      diagnosticFeedback,
     };
   },
 
