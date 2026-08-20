@@ -162,17 +162,17 @@ export const LiveInterview: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       {/* Top Header Controls */}
-      <div className="flex items-center justify-between glass-card p-4 rounded-2xl">
-        <div className="flex items-center gap-3">
-          <span className="badge badge-purple text-xs font-bold">{interview.type}</span>
-          <span className="badge badge-amber text-xs">{interview.difficulty}</span>
+      <div className="flex items-center justify-between border border-zinc-800 p-4 rounded-xl bg-zinc-900/30">
+        <div className="flex items-center gap-2">
+          <span className="badge badge-purple text-xs font-semibold">{interview.type}</span>
+          <span className="badge badge-amber text-xs font-semibold">{interview.difficulty}</span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs text-gray-300 font-mono bg-black/30 px-3 py-1.5 rounded-lg border border-white/5">
-            <Clock className="w-4 h-4 text-purple-400" /> {formatTimer(timer)}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-xs text-gray-200 font-mono bg-zinc-900 border border-zinc-800 px-2.5 py-1.5 rounded">
+            <Clock className="w-3.5 h-3.5 text-indigo-400" /> {formatTimer(timer)}
           </div>
 
           <button
@@ -185,26 +185,26 @@ export const LiveInterview: React.FC = () => {
       </div>
 
       {/* Question Card */}
-      <div className="glass-card p-6 md:p-8 rounded-2xl relative bg-gradient-to-b from-purple-900/10 to-transparent border border-purple-500/20">
+      <div className="border border-zinc-800 p-6 md:p-8 rounded-xl bg-zinc-900/20">
         <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-          <span className="font-semibold uppercase tracking-wider text-purple-400">
+          <span className="font-semibold uppercase tracking-wider text-indigo-400">
             Question {currentIndex + 1} of {interview.questions.length}
           </span>
           <button
             onClick={() => handleTextSpeech(currentQuestion.text)}
-            className="flex items-center gap-1 text-xs text-gray-300 hover:text-purple-300 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg transition-all"
+            className="flex items-center gap-1 text-xs text-gray-300 hover:text-indigo-300 bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded transition-all border border-zinc-700"
           >
             <Volume2 className="w-3.5 h-3.5" /> Read Aloud
           </button>
         </div>
 
-        <h2 className="text-lg md:text-xl font-bold text-white leading-relaxed">
+        <h2 className="text-base md:text-lg font-semibold text-white leading-relaxed">
           {currentQuestion.text}
         </h2>
 
         {/* Hints */}
         {currentQuestion.hints?.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-white/5">
+          <div className="mt-4 pt-4 border-t border-zinc-800/60">
             <button
               onClick={() => setShowHint(!showHint)}
               className="text-xs text-amber-400 hover:underline flex items-center gap-1 font-semibold"
@@ -212,7 +212,7 @@ export const LiveInterview: React.FC = () => {
               <HelpCircle className="w-3.5 h-3.5" /> {showHint ? 'Hide Hint' : 'Show Answer Hint'}
             </button>
             {showHint && (
-              <p className="mt-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
+              <p className="mt-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 text-xs text-amber-300/90 leading-relaxed">
                 💡 {currentQuestion.hints.join(' ')}
               </p>
             )}
@@ -221,28 +221,29 @@ export const LiveInterview: React.FC = () => {
       </div>
 
       {/* Answer Input Section */}
-      <div className="glass-card p-6 rounded-2xl space-y-4">
+      <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-gray-200 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-400" /> Your Response (Speech to Text)
+          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            Your Response
           </label>
 
           {isSupported ? (
             <button
               onClick={handleToggleMic}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-xs transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-semibold text-xs transition-all border ${
                 isListening
-                  ? 'bg-rose-500 text-white recording-pulse shadow-lg shadow-rose-900/40'
-                  : 'bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30'
+                  ? 'bg-rose-600 border-rose-500 text-white shadow-sm'
+                  : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700'
               }`}
             >
               {isListening ? (
                 <>
-                  <MicOff className="w-4 h-4" /> Stop Recording
+                  <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                  <MicOff className="w-3.5 h-3.5" /> Stop Recording
                 </>
               ) : (
                 <>
-                  <Mic className="w-4 h-4 text-purple-400" /> Record Answer
+                  <Mic className="w-3.5 h-3.5 text-zinc-400" /> Record Answer
                 </>
               )}
             </button>
@@ -271,7 +272,7 @@ export const LiveInterview: React.FC = () => {
           <button
             onClick={handleSubmitAnswer}
             disabled={submitting || !textInput.trim()}
-            className="btn-primary text-xs py-2 px-6 shadow-lg shadow-purple-900/30"
+            className="btn-primary text-xs py-2 px-5 shadow-sm"
           >
             {submitting ? (
               'Evaluating Answer...'

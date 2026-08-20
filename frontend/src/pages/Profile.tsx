@@ -88,41 +88,41 @@ export const Profile: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white tracking-tight">User Profile & Settings</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-[#fafafa] tracking-tight">User Profile & Settings</h1>
         <p className="text-xs text-gray-400 mt-1">
           Manage your account information, target position, skills, and security credentials.
         </p>
       </div>
 
       {/* Avatar & General Profile Form */}
-      <div className="glass-card p-6 md:p-8 rounded-2xl space-y-6">
+      <div className="border border-zinc-800 p-6 md:p-8 rounded-xl bg-zinc-900/30 space-y-6">
         <div className="flex items-center gap-4">
           <div className="relative">
             {user?.avatar ? (
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-16 h-16 rounded-full object-cover border-2 border-purple-500/40"
+                className="w-16 h-16 rounded-full object-cover border border-zinc-700"
               />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-purple-900/40 border-2 border-purple-500/40 flex items-center justify-center text-purple-300 font-bold text-xl">
+              <div className="w-16 h-16 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 font-bold text-xl">
                 {user?.name?.[0]?.toUpperCase()}
               </div>
             )}
-            <label className="absolute bottom-0 right-0 p-1.5 bg-purple-600 rounded-full text-white cursor-pointer hover:bg-purple-500 transition-all shadow-md">
+            <label className="absolute bottom-0 right-0 p-1.5 bg-zinc-800 border border-zinc-700 text-white rounded-full cursor-pointer hover:bg-zinc-750 transition-all shadow-md">
               <Upload className="w-3.5 h-3.5" />
               <input type="file" onChange={handleAvatarChange} accept="image/*" className="hidden" />
             </label>
           </div>
 
           <div>
-            <h3 className="text-lg font-bold text-white">{user?.name}</h3>
-            <p className="text-xs text-gray-400">{user?.email}</p>
+            <h3 className="text-base font-semibold text-white">{user?.name}</h3>
+            <p className="text-xs text-gray-450">{user?.email}</p>
             <span className="badge badge-purple text-[10px] mt-1">{user?.role} Account</span>
           </div>
         </div>
 
-        <form onSubmit={handleUpdateProfile} className="space-y-4 pt-4 border-t border-white/5">
+        <form onSubmit={handleUpdateProfile} className="space-y-4 pt-4 border-t border-zinc-800/80">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-300 mb-1">Full Name</label>
@@ -180,7 +180,7 @@ export const Profile: React.FC = () => {
           </div>
 
           <div className="flex justify-end pt-2">
-            <button type="submit" disabled={saving} className="btn-primary text-xs py-2 px-6">
+            <button type="submit" disabled={saving} className="btn-primary text-xs py-2 px-5">
               {saving ? 'Saving...' : 'Save Profile Changes'}
             </button>
           </div>
@@ -188,9 +188,9 @@ export const Profile: React.FC = () => {
       </div>
 
       {/* Password & Security */}
-      <div className="glass-card p-6 rounded-2xl space-y-4">
-        <h3 className="text-sm font-bold text-gray-200 flex items-center gap-2">
-          <Lock className="w-4 h-4 text-purple-400" /> Security & Password
+      <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+        <h3 className="text-xs font-semibold text-gray-200 flex items-center gap-2 uppercase tracking-wider">
+          Security & Password
         </h3>
 
         <form onSubmit={handleChangePassword} className="space-y-3 max-w-md">
@@ -224,11 +224,11 @@ export const Profile: React.FC = () => {
       </div>
 
       {/* Account Deletion */}
-      <div className="glass-card p-6 rounded-2xl border border-rose-500/20 bg-rose-500/5 space-y-3">
-        <h3 className="text-sm font-bold text-rose-400 flex items-center gap-2">
-          <Trash2 className="w-4 h-4" /> Danger Zone
+      <div className="border border-rose-500/10 bg-rose-500/5 p-6 rounded-xl space-y-3">
+        <h3 className="text-xs font-semibold text-rose-455 uppercase tracking-wider flex items-center gap-2">
+          Danger Zone
         </h3>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-450 leading-relaxed">
           Deleting your account will deactivate your profile and soft-delete all associated interview data.
         </p>
         <button onClick={handleDeleteAccount} className="btn-danger text-xs py-2 px-4">

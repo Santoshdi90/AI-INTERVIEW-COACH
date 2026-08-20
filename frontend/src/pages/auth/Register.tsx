@@ -53,7 +53,7 @@ export const Register: React.FC = () => {
         <p className="text-xs text-gray-300 mb-4 leading-relaxed">
           We've logged a verification link to our system logs (Demo Mode).
         </p>
-        <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-[11px] text-purple-300 text-left mb-6">
+        <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-lg text-[11px] text-zinc-300 text-left mb-6">
           📌 In this environment, you can directly sign in using the login page or click Google Sign-In.
         </div>
         <Link to="/login" className="btn-primary w-full justify-center py-2.5 text-xs">
@@ -132,7 +132,7 @@ export const Register: React.FC = () => {
 
       <p className="text-center text-xs text-gray-400 mt-6">
         Already have an account?{' '}
-        <Link to="/login" className="text-purple-400 font-semibold hover:underline">
+        <Link to="/login" className="text-indigo-400 font-semibold hover:underline">
           Sign In
         </Link>
       </p>

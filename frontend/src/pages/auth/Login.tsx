@@ -97,7 +97,7 @@ export const Login: React.FC = () => {
             <label className="text-xs font-semibold text-gray-300">Password</label>
             <Link
               to="/forgot-password"
-              className="text-[11px] text-purple-400 hover:underline font-medium"
+              className="text-[11px] text-indigo-400 hover:underline font-medium"
             >
               Forgot password?
             </Link>
@@ -163,7 +163,7 @@ export const Login: React.FC = () => {
 
       <p className="text-center text-xs text-gray-400 mt-6">
         Don't have an account?{' '}
-        <Link to="/register" className="text-purple-400 font-semibold hover:underline">
+        <Link to="/register" className="text-indigo-400 font-semibold hover:underline">
           Create one now
         </Link>
       </p>

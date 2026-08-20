@@ -95,32 +95,32 @@ export const Resume: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white tracking-tight">AI Resume Analyzer</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-[#fafafa] tracking-tight">Resume Diagnostics</h1>
         <p className="text-xs text-gray-400 mt-1">
-          Upload your PDF resume to extract skills, calculate ATS score, and receive AI optimization suggestions.
+          Upload your PDF resume to extract skills, review ATS correctness, and see specific structure suggestions.
         </p>
       </div>
 
       {/* Upload Zone */}
       <div
         {...getRootProps()}
-        className={`glass-card p-8 rounded-2xl border-2 border-dashed cursor-pointer text-center transition-all ${
+        className={`border-2 border-dashed rounded-xl p-8 cursor-pointer text-center transition-all ${
           isDragActive
-            ? 'border-purple-500 bg-purple-500/10'
-            : 'border-white/10 hover:border-purple-500/40 hover:bg-white/[0.02]'
+            ? 'border-indigo-500 bg-indigo-500/5'
+            : 'border-zinc-800 bg-zinc-900/10 hover:border-zinc-700'
         }`}
       >
         <input {...getInputProps()} />
-        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mx-auto mb-3 border border-purple-500/20">
-          <Upload className="w-6 h-6" />
+        <div className="w-10 h-10 rounded-lg bg-zinc-800 text-zinc-300 flex items-center justify-center mx-auto mb-3 border border-zinc-700">
+          <Upload className="w-5 h-5" />
         </div>
         <p className="text-sm font-semibold text-gray-200">
-          {isDragActive ? 'Drop your PDF resume here...' : 'Click or drag PDF resume to upload'}
+          {isDragActive ? 'Drop your resume here...' : 'Click or drag PDF resume to upload'}
         </p>
-        <p className="text-xs text-gray-500 mt-1">Maximum file size: 5MB (PDF only)</p>
+        <p className="text-xs text-gray-500 mt-1">PDF format only, maximum 5MB</p>
         {uploading && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-purple-400 font-semibold">
-            <RefreshCw className="w-4 h-4 animate-spin" /> Analyzing resume with AI...
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-indigo-400 font-semibold">
+            <RefreshCw className="w-4 h-4 animate-spin" /> Analyzing resume structure...
           </div>
         )}
       </div>
@@ -128,14 +128,14 @@ export const Resume: React.FC = () => {
       {activeResume ? (
         <div className="space-y-6">
           {/* Resume Analysis Summary Header */}
-          <div className="glass-card p-6 rounded-2xl bg-gradient-to-r from-purple-900/20 via-indigo-900/20 to-black">
+          <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/40">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <FileText className="w-6 h-6" />
+                <div className="p-2.5 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700">
+                  <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">{activeResume.fileName}</h3>
+                  <h3 className="text-sm font-semibold text-white">{activeResume.fileName}</h3>
                   <p className="text-xs text-gray-400">
                     Uploaded on {new Date(activeResume.createdAt).toLocaleDateString()}
                   </p>
@@ -147,16 +147,16 @@ export const Resume: React.FC = () => {
                   <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-semibold">
                     Overall Score
                   </span>
-                  <span className="text-2xl font-extrabold text-purple-400">
-                    {activeResume.overallScore || 0}/100
+                  <span className="text-xl font-bold text-white">
+                    {activeResume.overallScore || 0} / 100
                   </span>
                 </div>
 
-                <div className="text-center border-l border-white/10 pl-6">
+                <div className="text-center border-l border-zinc-800 pl-6">
                   <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-semibold">
                     ATS Readiness
                   </span>
-                  <span className="text-2xl font-extrabold text-cyan-400">
+                  <span className="text-xl font-bold text-indigo-400">
                     {activeResume.atsScore || 0}%
                   </span>
                 </div>
@@ -167,9 +167,9 @@ export const Resume: React.FC = () => {
           {/* Analysis Details Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Extracted & Missing Skills */}
-            <div className="glass-card p-6 rounded-2xl space-y-4">
-              <h4 className="text-sm font-bold text-gray-200 flex items-center gap-2">
-                <ListChecks className="w-4 h-4 text-purple-400" /> Extracted Skills
+            <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+              <h4 className="text-xs font-semibold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                <ListChecks className="w-4 h-4 text-zinc-500" /> Extracted Skills
               </h4>
               <div className="flex flex-wrap gap-2">
                 {analysis.skills?.map((skill: string) => (
@@ -180,8 +180,8 @@ export const Resume: React.FC = () => {
               </div>
 
               {analysis.missingSkills?.length > 0 && (
-                <div className="pt-3 border-t border-white/5">
-                  <h5 className="text-xs font-semibold text-rose-400 mb-2">Recommended Skills to Add</h5>
+                <div className="pt-3 border-t border-zinc-850">
+                  <h5 className="text-xs font-semibold text-rose-450 mb-2">Recommended Skills to Add</h5>
                   <div className="flex flex-wrap gap-2">
                     {analysis.missingSkills.map((skill: string) => (
                       <span key={skill} className="badge badge-rose">
@@ -194,9 +194,9 @@ export const Resume: React.FC = () => {
             </div>
 
             {/* Strengths & Weaknesses */}
-            <div className="glass-card p-6 rounded-2xl space-y-4">
-              <h4 className="text-sm font-bold text-gray-200 flex items-center gap-2">
-                <Award className="w-4 h-4 text-emerald-400" /> AI Diagnostic Feedback
+            <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+              <h4 className="text-xs font-semibold text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                <Award className="w-4 h-4 text-zinc-500" /> Evaluation Assessment
               </h4>
 
               <div className="space-y-2">
@@ -204,19 +204,19 @@ export const Resume: React.FC = () => {
                 <ul className="space-y-1">
                   {analysis.strengths?.map((s: string, idx: number) => (
                     <li key={idx} className="text-xs text-gray-300 flex items-start gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{s}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-white/5">
+              <div className="space-y-2 pt-2 border-t border-zinc-850">
                 <p className="text-xs font-semibold text-amber-400">Improvement Opportunities:</p>
                 <ul className="space-y-1">
                   {analysis.weaknesses?.map((w: string, idx: number) => (
                     <li key={idx} className="text-xs text-gray-300 flex items-start gap-1.5">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                       <span>{w}</span>
                     </li>
                   ))}
@@ -226,17 +226,17 @@ export const Resume: React.FC = () => {
           </div>
 
           {/* AI Suggestions Box */}
-          <div className="glass-card p-6 rounded-2xl">
-            <h4 className="text-sm font-bold text-gray-200 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400" /> Optimization Suggestions
+          <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30">
+            <h4 className="text-xs font-semibold text-gray-200 uppercase tracking-wider mb-3 flex items-center gap-2">
+              Optimization Suggestions
             </h4>
             <div className="space-y-2">
               {analysis.suggestions?.map((sug: string, idx: number) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-purple-500/5 border border-purple-500/10 text-xs text-gray-300 flex items-start gap-2"
+                  className="p-3 rounded bg-zinc-900/50 border border-zinc-800 text-xs text-gray-300 flex items-start gap-2"
                 >
-                  <span className="font-bold text-purple-400">{idx + 1}.</span>
+                  <span className="font-bold text-indigo-400">{idx + 1}.</span>
                   <span>{sug}</span>
                 </div>
               ))}
@@ -244,23 +244,23 @@ export const Resume: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="glass-card p-8 rounded-2xl text-center">
+        <div className="border border-zinc-800 p-8 rounded-xl bg-zinc-900/30 text-center">
           <p className="text-xs text-gray-400">No active resume analyzed yet. Upload one above.</p>
         </div>
       )}
 
       {/* Uploaded Resumes List */}
       {resumes.length > 0 && (
-        <div className="glass-card p-6 rounded-2xl">
-          <h3 className="text-sm font-bold text-gray-200 mb-4">Resume History</h3>
+        <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30">
+          <h3 className="text-sm font-semibold text-gray-200 mb-4">Resume History</h3>
           <div className="space-y-2">
             {resumes.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 text-xs hover:border-white/10 transition-all"
+                className="flex items-center justify-between p-3 rounded-lg bg-zinc-900/20 border border-zinc-800 text-xs hover:border-zinc-700 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <FileText className="w-4 h-4 text-purple-400" />
+                  <FileText className="w-4 h-4 text-indigo-400" />
                   <div>
                     <p className="font-semibold text-gray-200">{item.fileName}</p>
                     <p className="text-[10px] text-gray-400">
@@ -275,7 +275,7 @@ export const Resume: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => handleSetActive(item.id)}
-                      className="text-xs text-purple-400 hover:underline"
+                      className="text-xs text-indigo-400 hover:underline"
                     >
                       Set Active
                     </button>

@@ -1,21 +1,17 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+
+import { UserCheck } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
   return (
-    <div className="auth-bg flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-72 h-72 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="w-full max-w-md z-10">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[var(--bg-primary)]">
+      <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 p-0.5 mb-3 glow">
-            <div className="w-full h-full bg-[#0a0a0f] rounded-[14px] flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-purple-400" />
-            </div>
+          <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-3">
+            <UserCheck className="w-5 h-5 text-indigo-400" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight gradient-text">
+          <h1 className="text-lg font-semibold tracking-tight text-white">
             AI Interview Coach
           </h1>
           <p className="text-xs text-gray-400 mt-1">
@@ -23,7 +19,7 @@ export const AuthLayout: React.FC = () => {
           </p>
         </div>
 
-        <div className="glass-card p-6 md:p-8 rounded-2xl border border-white/10 shadow-2xl">
+        <div className="border border-zinc-800 p-6 md:p-8 rounded-xl bg-zinc-900/30 shadow-xl">
           <Outlet />
         </div>
       </div>

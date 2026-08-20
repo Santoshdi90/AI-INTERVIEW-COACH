@@ -64,16 +64,16 @@ export const InterviewSetup: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white tracking-tight">Setup AI Mock Interview</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-[#fafafa] tracking-tight">Configure Practice Session</h1>
         <p className="text-xs text-gray-400 mt-1">
-          Customize your interview category, difficulty level, and session parameters.
+          Select your category, difficulty preference, and question quantity to begin.
         </p>
       </div>
 
       {/* Step 1: Select Type */}
-      <div className="glass-card p-6 rounded-2xl space-y-4">
-        <h3 className="text-sm font-bold text-gray-200 flex items-center gap-2">
-          <Brain className="w-4 h-4 text-purple-400" /> 1. Select Interview Category
+      <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+        <h3 className="text-xs font-semibold text-gray-200 flex items-center gap-2 uppercase tracking-wider">
+          1. Select Category
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -84,21 +84,21 @@ export const InterviewSetup: React.FC = () => {
               <div
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                className={`p-4 rounded-lg border cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-purple-500/15 border-purple-500/50 shadow-lg shadow-purple-900/20'
-                    : 'bg-white/[0.02] border-white/5 hover:border-white/15'
+                    ? 'bg-indigo-500/5 border-indigo-600'
+                    : 'bg-zinc-900/20 border-zinc-800 hover:border-zinc-700'
                 }`}
               >
                 <div className="flex items-center gap-2.5 mb-2">
                   <div
-                    className={`p-2 rounded-lg ${
-                      isSelected ? 'bg-purple-500 text-white' : 'bg-white/5 text-purple-400'
+                    className={`p-1.5 rounded ${
+                      isSelected ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-400'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-xs font-bold text-white">{type.label}</span>
+                  <span className="text-xs font-semibold text-white">{type.label}</span>
                 </div>
                 <p className="text-[11px] text-gray-400 leading-relaxed">{type.desc}</p>
               </div>
@@ -107,7 +107,7 @@ export const InterviewSetup: React.FC = () => {
         </div>
 
         {selectedType === 'CUSTOM' && (
-          <div className="mt-4 p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+          <div className="mt-4 p-4 rounded-lg bg-zinc-900/40 border border-zinc-800">
             <label className="block text-xs font-semibold text-gray-300 mb-1.5">
               Custom Topic / Specification
             </label>
@@ -124,21 +124,21 @@ export const InterviewSetup: React.FC = () => {
 
       {/* Step 2: Difficulty & Question Count */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="glass-card p-6 rounded-2xl space-y-4">
-          <h3 className="text-sm font-bold text-gray-200">2. Select Difficulty Level</h3>
+        <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+          <h3 className="text-xs font-semibold text-gray-200 uppercase tracking-wider">2. Difficulty Level</h3>
           <div className="grid grid-cols-3 gap-2">
             {['EASY', 'MEDIUM', 'HARD'].map((level) => (
               <button
                 key={level}
                 onClick={() => setDifficulty(level)}
-                className={`py-3 rounded-xl border text-xs font-bold transition-all ${
+                className={`py-2.5 rounded-lg border text-xs font-semibold transition-all ${
                   difficulty === level
                     ? level === 'EASY'
-                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+                      ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
                       : level === 'MEDIUM'
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-300'
-                      : 'bg-rose-500/20 border-rose-500 text-rose-300'
-                    : 'bg-white/[0.02] border-white/5 text-gray-400 hover:border-white/10'
+                      ? 'bg-amber-500/10 border-amber-500 text-amber-400'
+                      : 'bg-rose-500/10 border-rose-500 text-rose-400'
+                    : 'bg-zinc-900/20 border-zinc-800 text-gray-400 hover:border-zinc-700'
                 }`}
               >
                 {level}
@@ -147,17 +147,17 @@ export const InterviewSetup: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-card p-6 rounded-2xl space-y-4">
-          <h3 className="text-sm font-bold text-gray-200">3. Number of Questions</h3>
+        <div className="border border-zinc-800 p-6 rounded-xl bg-zinc-900/30 space-y-4">
+          <h3 className="text-xs font-semibold text-gray-200 uppercase tracking-wider">3. Number of Questions</h3>
           <div className="grid grid-cols-3 gap-2">
             {[3, 5, 10].map((count) => (
               <button
                 key={count}
                 onClick={() => setQuestionCount(count)}
-                className={`py-3 rounded-xl border text-xs font-bold transition-all ${
+                className={`py-2.5 rounded-lg border text-xs font-semibold transition-all ${
                   questionCount === count
-                    ? 'bg-purple-500/20 border-purple-500 text-purple-300'
-                    : 'bg-white/[0.02] border-white/5 text-gray-400 hover:border-white/10'
+                    ? 'bg-indigo-500/10 border-indigo-600 text-indigo-400'
+                    : 'bg-zinc-900/20 border-zinc-800 text-gray-400 hover:border-zinc-700'
                 }`}
               >
                 {count} Questions
@@ -172,7 +172,7 @@ export const InterviewSetup: React.FC = () => {
         <button
           onClick={handleStart}
           disabled={loading}
-          className="btn-primary py-3 px-8 text-sm shadow-xl shadow-purple-900/40"
+          className="btn-primary py-2.5 px-6 text-xs shadow-sm"
         >
           {loading ? (
             'Generating Interview Questions...'

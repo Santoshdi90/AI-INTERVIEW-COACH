@@ -40,10 +40,11 @@ export const App: React.FC = () => {
         position="top-right"
         toastOptions={{
           style: {
-            background: '#12121f',
-            color: '#f1f1f7',
-            border: '1px solid rgba(255,255,255,0.1)',
-            fontSize: '12px',
+            background: '#18181b',
+            color: '#fafafa',
+            border: '1px solid #27272a',
+            fontSize: '13px',
+            borderRadius: '6px',
           },
         }}
       />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { LogOut, User as UserIcon, Sparkles, Shield } from 'lucide-react';
+import { LogOut, User as UserIcon, UserCheck, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '@/services/api.service';
 
@@ -20,14 +20,12 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="h-16 border-b border-[var(--border-subtle)] bg-black/40 backdrop-blur-xl sticky top-0 z-30 px-6 flex items-center justify-between">
+    <header className="h-16 border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)] sticky top-0 z-30 px-6 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 p-0.5 flex items-center justify-center glow-sm">
-          <div className="w-full h-full bg-[#0a0a0f] rounded-[10px] flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-          </div>
+        <div className="w-8 h-8 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+          <UserCheck className="w-4 h-4 text-indigo-400" />
         </div>
-        <span className="font-extrabold text-lg tracking-tight gradient-text">
+        <span className="font-semibold text-sm tracking-tight text-[#fafafa]">
           AI Interview Coach
         </span>
       </div>
@@ -51,10 +49,10 @@ export const Navbar: React.FC = () => {
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-8 h-8 rounded-full object-cover border border-purple-500/30 group-hover:border-purple-400 transition-all"
+                className="w-8 h-8 rounded-full object-cover border border-zinc-700 group-hover:border-zinc-500 transition-all"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-300 font-semibold text-xs group-hover:border-purple-400 transition-all">
+              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 font-semibold text-xs group-hover:border-zinc-500 transition-all">
                 {user?.name?.[0]?.toUpperCase() || <UserIcon className="w-4 h-4" />}
               </div>
             )}
