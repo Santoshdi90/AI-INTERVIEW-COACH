@@ -22,9 +22,12 @@ export const resumeService = {
     try {
       const dataBuffer = fs.readFileSync(file.path);
       const parsed = await pdfParse(dataBuffer);
-      rawText = parsed.text;
+      rawText = parsed?.text || '';
     } catch (err) {
       logger.warn('PDF text extraction failed, using filename as fallback');
+    }
+
+    if (!rawText || rawText.trim().length === 0) {
       rawText = file.originalname;
     }
 

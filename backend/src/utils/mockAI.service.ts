@@ -363,7 +363,7 @@ export const mockAIService = {
     logger.info('[MockAI] Analyzing resume...');
     await new Promise((r) => setTimeout(r, 1200));
 
-    const lowercaseText = resumeText.toLowerCase();
+    const lowercaseText = (resumeText || '').toLowerCase();
 
     const hasEducation = lowercaseText.includes('education') ||
       lowercaseText.includes('university') ||

@@ -1,5 +1,5 @@
-export function validateResumeHeuristics(text: string): { isValid: boolean; reason?: string } {
-  if (!text || text.trim().length < 50) {
+export function validateResumeHeuristics(text: any): { isValid: boolean; reason?: string } {
+  if (!text || typeof text !== 'string' || text.trim().length < 50) {
     return {
       isValid: false,
       reason: 'The uploaded file is empty or contains too little text to be a valid resume/CV.'
